@@ -1,15 +1,32 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const productRoutes = require("./routes/productRoutes");
+const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 // const e = require("cors");
 dotenv.config();
 const app = express();
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 
+app.use(cookieParser());
+app.get("/", (req, res) => {
+  res.json({
+    message: "Server is running",
+  });
+});
+
 app.use("/", productRoutes);
+
+app.use("/", cartRoutes);
+
 app.use("/auth", authRoutes);
+
+app.use("/orders", orderRoutes);
 
 mongoose
   .connect(process.env.MONGODB_URL)
@@ -20,6 +37,6 @@ mongoose
     });
   })
 
-  .catch(() => {
+  .catch((error) => {
     console.log("Error connecting to database: ", error.message);
   });

@@ -55,6 +55,7 @@ const login = async (req, res) => {
       {
         email: user.email,
         role: user.role,
+        _id: user._id,
       },
       process.env.JWT_SECRET,
       {
@@ -83,8 +84,24 @@ const logout = (req, res) => {
     message: "LogOut Successful",
   });
 };
+const verifyUser = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (!token) return res.status(401).json({ authenticated: false });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({
+      authenticated: true,
+      user: decoded,
+    });
+  } catch (error) {
+    res.status(401).json({
+      authenticated: false,
+    });
+  }
+};
 module.exports = {
   register,
   login,
   logout,
+  verifyUser,
 };
